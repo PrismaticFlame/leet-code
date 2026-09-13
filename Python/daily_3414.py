@@ -1,5 +1,6 @@
 from typing import List
 from bisect import bisect_left
+import time
 
 class Solution:
     def maximumWeight(self, intervals: List[List[int]]) -> List[int]:
@@ -48,6 +49,18 @@ class Solution:
 
         return memo[len(memo) - 1][4][1]
 
+    def maximumWeight2(self, intervals: List[List[int]]) -> List[int]:
+        order = sorted(range(len(intervals)), key=lambda j: intervals[j][1])
+        ends = [intervals[j][1] for j in order]
+        dp = [[(0, ())] * 5 for _ in range(len(order) + 1)]
+        for i, j in enumerate(order):
+            l, _, w = intervals[j]
+            p = bisect_left(ends, l)
+            for k in range(1, 5):
+                score, picks = dp[p][k - 1]
+                dp[i + 1][k] = min(dp[i][k], (score - w, tuple(sorted(picks + (j,)))))
+        return list(dp[-1][4][1])
+
 
 if __name__ == "__main__":
     intervals = [[1,3,2],[4,5,2],[1,5,5],[6,9,3],[6,7,1],[8,9,1]]
@@ -67,7 +80,18 @@ if __name__ == "__main__":
     # going to take a break and come back and see if it makes more sense
     # 12:17AM September 13, 2026: doesn't make such more sense, so it will come to me in my dreams
 
+    start_time = time.perf_counter()    
     print("PROBLEM: ", intervals)
     print("ANSWER:  ", Solution().maximumWeight(intervals))
     print("PROBLEM: ", intervals_2)
     print("ANSWER:  ", Solution().maximumWeight(intervals_2))
+    end_time = time.perf_counter()
+    print("Approach 1: ", end_time - start_time)
+
+    start_time_2 = time.perf_counter()
+    print("PROBLEM: ", intervals)
+    print("ANSWER:  ", Solution().maximumWeight2(intervals))
+    print("PROBLEM: ", intervals_2)
+    print("ANSWER:  ", Solution().maximumWeight2(intervals_2))
+    end_time_2 = time.perf_counter()
+    print("Approach 2: ", end_time_2 - start_time_2)
